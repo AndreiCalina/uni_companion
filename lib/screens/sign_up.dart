@@ -1,19 +1,20 @@
-// lib/screens/sign_up.dart
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_screen.dart';  // You'll navigate to this screen after successful sign up
+import 'package:cloud_firestore/cloud_firestore.dart';  // For saving data to Firestore
+import 'home_screen.dart';  // Navigate to home screen after successful signup
 
 class SignUpScreen extends StatefulWidget {
   @override
-  _SignUpScreenState createState() => _SignUpScreenState();
+  SignUpScreenState createState() => SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   String _errorMessage = "";
+  String _selectedRole = "student";  // Default role
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Sign Up method
   Future<void> _signUp() async {
@@ -23,7 +24,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: _passwordController.text,
       );
 
-      // Navigate to Home Screen after successful sign up
+      // Save the user role to Firestore (along with other data)
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'email': _emailController.text,
+        'role': _selectedRole,  // Save selected role
+        'name': '',  // You can add a field for the user's name if desired
+      });
+
+      // Navigate to HomeScreen after successful sign up
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen(user: userCredential.user!)),
@@ -54,19 +62,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
               decoration: InputDecoration(labelText: "Password"),
             ),
             SizedBox(height: 20),
+
+            // Dropdown for selecting the role
+            DropdownButton<String>(
+              value: _selectedRole,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedRole = newValue!;
+                });
+              },
+              items: <String>['student', 'teacher']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+
+            SizedBox(height: 20),
+
             ElevatedButton(
               onPressed: _signUp,
               child: Text("Sign Up"),
             ),
             if (_errorMessage.isNotEmpty)
               Text(_errorMessage, style: TextStyle(color: Colors.red)),
-            TextButton(
-              onPressed: () {
-                // If the user already has an account, navigate to the Sign In screen
-                Navigator.pop(context);
-              },
-              child: Text("Already have an account? Sign In"),
-            ),
           ],
         ),
       ),

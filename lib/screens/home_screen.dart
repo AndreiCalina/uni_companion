@@ -1,5 +1,3 @@
-// lib/screens/home_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uni_companion/services/firestore_service.dart';
@@ -47,13 +45,19 @@ class _HomeScreenState extends State<HomeScreen> {
           context,
           MaterialPageRoute(builder: (context) => StudentDashboard(user: widget.user)),
         );
+      } else {
+        // Handle case when the role is not found (you can show an error or redirect)
+        setState(() {
+          isLoading = false;
+        });
+        print('Error: No valid role found for the user.');
       }
     } catch (e) {
       setState(() {
         isLoading = false;  // Stop loading on error
       });
       print('Error fetching user data: $e');
-      // Optionally, show an error message
+      // Optionally, show an error message or redirect to a different screen
     }
   }
 
@@ -70,7 +74,16 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text('Home - ${widget.user.email}'),
       ),
-      body: Center(child: Text('Welcome, ${widget.user.email}')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Welcome, ${widget.user.email}', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 20),
+            Text('Role: $role', style: TextStyle(fontSize: 16)),  // Display role
+          ],
+        ),
+      ),
     );
   }
 }

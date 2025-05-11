@@ -6,20 +6,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Fetch user data from Firestore
-  Future<Map<String, dynamic>> getUserData(String userId) async {
+  // Fetch user data based on UID
+  Future<Map<String, dynamic>> getUserData(String uid) async {
     try {
-      // Fetch user document from the 'users' collection
-      DocumentSnapshot userDoc = await _db.collection('users').doc(userId).get();
-
-      // Check if the document exists
+      DocumentSnapshot userDoc = await _db.collection('users').doc(uid).get();
       if (userDoc.exists) {
         return userDoc.data() as Map<String, dynamic>;
       } else {
-        throw Exception("User data not found");
+        throw Exception('User data not found');
       }
     } catch (e) {
-      throw Exception("Error fetching user data: $e");
+      throw Exception('Error fetching user data: $e');
     }
   }
 }
