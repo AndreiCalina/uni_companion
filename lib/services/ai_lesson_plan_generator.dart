@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class AILessonPlanGenerator {
-  final String _apiKey = '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';
-  // Replace with your Groq API key
+  final String _apiKey = dotenv.env['GROQ_API_KEY'] ?? '';  // Fetch from .env file
+
 
   // Generate lesson plan using Groq AI (Llama 3.3 model)
   Future<String> generateLessonPlan({
